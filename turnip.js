@@ -31,7 +31,7 @@ const DAYS = {
 const client = new Discord.Client();
 
 //Gathers necessary data from the google spreadsheet
-const doc = new GoogleSpreadsheet('1t-lOR2Qpd7Wu5pJyEcPzYAVfHVuRCn8QzFCxrMZSnx8');
+const doc = new GoogleSpreadsheet(creds.acsheetid);
 
 async function accessSpreadsheet() {
   await doc.useServiceAccountAuth({
@@ -61,18 +61,53 @@ async function accessSpreadsheet() {
 }
 
 function largeSpikesMessage(data) {
-    let topthree = [];
+    //let spikelist = [];
+    let embed = new Discord.MessageEmbed()
+            .setColor('#bdd9b8')
+            .setTitle('Results');
+    let count = 0;
     for (let i=0; i<data.length; i++) {
         let l = 0;
         data[i]['prices'].forEach(element => {if (!isNaN(element)) { l++; }});
-        if (l <= 3 || isNaN(data[i]['prices'][0])) { continue; }//skips people without enough data or no buy price
+        if (l <= 3)  continue; //skips people without enough data
         let p = new Predictor(data[i]['prices'],false,PATTERN[data[i]['prev_pattern']]);
         let results = p.analyze_possibilities();
         for (let j=0; j<results.length;j++) {
-            if ( results[j].pattern_number == 1) { topthree.push(`${data[i]['name']} has a ${(results[j]['category_total_probability']*100).toFixed(1)}% chance to spike as high as ${results[j].weekMax} as early as ${spikeDay(results[j])}`); break; }
+            //if ( results[j].pattern_number == 1) { spikelist.push(`[${data[i]['name']}](${generateLink(data[i]['prices'],data[i]['prev_pattern'])}) has a ${(results[j]['category_total_probability']*100).toFixed(1)}% chance to spike as high as ${results[j].weekMax} as early as ${spikeDay(results[j])}`); break; }
+            if ( results[j].pattern_number == 1) { embed.addField(data[i]['name'],`[${(results[j]['category_total_probability']*100).toFixed(1)}% chance to spike as high as ${results[j].weekMax} as early as ${spikeDay(results[j])}](${generateLink(data[i]['prices'],data[i]['prev_pattern'])})`,false); count++; break; }
         }
     }
-    return topthree;
+    if (count == 0) { embed.addField('Looks like nobody has a chance for a large spike this week','😢',false);};
+    return embed;
+}
+
+function isEmpty(arr) {
+    const filtered = arr.filter(value => value !== null && value !== '' && !isNaN(value));
+    return filtered.length == 0;
+};
+
+function generateLink(prices, prev_pattern) {
+    let link = 'https://turnipprophet.io/?';
+    let buy_price = prices[0];
+    let sell_prices = prices.slice(2);
+    console.log(sell_prices);
+    let searchParams = new URLSearchParams();
+    let pricesParam = buy_price ? buy_price.toString() : '';
+
+    if (!isEmpty(sell_prices)) {
+        const filtered = sell_prices.map(price => isNaN(price) ? '' : price).join('.');
+        pricesParam = pricesParam.concat('.', filtered);
+    }
+
+    if (pricesParam) {
+        searchParams.append('prices', pricesParam);
+    }
+
+    if (prev_pattern !== 4) {
+        searchParams.append('pattern', PATTERN[prev_pattern]);
+    }
+
+    return link.concat('',searchParams.toString());
 }
 
 function spikeDay(result) {
@@ -83,13 +118,21 @@ function spikeDay(result) {
     return day;
 }
 
+function createEmbed(list) {
+    const embed = new Discord.MessageEmbed()
+        .setColor('#bdd9b8')
+        .setTitle('Results');
+    return embed;
+}
+
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
 client.on('message', message => {
-	if (message.content === '!Turnip' || message.content === '!turnip') {
-        message.channel.send('Calculating...');
+    if (!message.content.startsWith(config.prefix) || message.author.bot) return;
+    if (message.content.toLowerCase() === '!turnip' || message.content.toLowerCase() === '!turnips') {
+        message.channel.send('Calculating, please wait...');
         largeSpikes(message);
     }
 });
@@ -97,6 +140,7 @@ client.on('message', message => {
 function largeSpikes(message) {
     accessSpreadsheet()
         .then(data => largeSpikesMessage(data))
+        //.then(list => createEmbed(list))
         .then(msg => message.channel.send(msg))
         .then(() => console.log('done'))
         .catch(console.error);
