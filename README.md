@@ -2,7 +2,7 @@
 
 TurnipBot is a simple discord bot that collects animal crossing turnip prices from a shared google sheet, crunches some numbers, determines who will have a large spike in prices, and then returns that data to a discord channel.
 
-Prediction code stolen from [mikebryant](https://github.com/mikebryant/ac-nh-turnip-prices), which was adapted from [Ninji' original work](https://gist.github.com/Treeki/85be14d297c80c8b3c0a76375743325b).
+Prediction code stolen from [mikebryant](https://github.com/mikebryant/ac-nh-turnip-prices), which was adapted from [Ninji's original work](https://gist.github.com/Treeki/85be14d297c80c8b3c0a76375743325b).
 
 ## Useage
 

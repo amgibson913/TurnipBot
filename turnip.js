@@ -61,7 +61,6 @@ async function accessSpreadsheet() {
 }
 
 function largeSpikesMessage(data) {
-    //let spikelist = [];
     let embed = new Discord.MessageEmbed()
             .setColor('#bdd9b8')
             .setTitle('Results');
@@ -73,7 +72,6 @@ function largeSpikesMessage(data) {
         let p = new Predictor(data[i]['prices'],false,PATTERN[data[i]['prev_pattern']]);
         let results = p.analyze_possibilities();
         for (let j=0; j<results.length;j++) {
-            //if ( results[j].pattern_number == 1) { spikelist.push(`[${data[i]['name']}](${generateLink(data[i]['prices'],data[i]['prev_pattern'])}) has a ${(results[j]['category_total_probability']*100).toFixed(1)}% chance to spike as high as ${results[j].weekMax} as early as ${spikeDay(results[j])}`); break; }
             if ( results[j].pattern_number == 1) { embed.addField(data[i]['name'],`[${(results[j]['category_total_probability']*100).toFixed(1)}% chance to spike as high as ${results[j].weekMax} as early as ${spikeDay(results[j])}](${generateLink(data[i]['prices'],data[i]['prev_pattern'])})`,false); count++; break; }
         }
     }
@@ -118,15 +116,9 @@ function spikeDay(result) {
     return day;
 }
 
-function createEmbed(list) {
-    const embed = new Discord.MessageEmbed()
-        .setColor('#bdd9b8')
-        .setTitle('Results');
-    return embed;
-}
-
 client.once('ready', () => {
-	console.log('Ready!');
+    console.log('Ready!');
+    client.user.setActivity("!Turnip", { type: 'LISTENING'});
 });
 
 client.on('message', message => {
@@ -140,7 +132,6 @@ client.on('message', message => {
 function largeSpikes(message) {
     accessSpreadsheet()
         .then(data => largeSpikesMessage(data))
-        //.then(list => createEmbed(list))
         .then(msg => message.channel.send(msg))
         .then(() => console.log('done'))
         .catch(console.error);
