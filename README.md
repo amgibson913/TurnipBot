@@ -14,5 +14,5 @@ $ node turnip.js
 ```
 or in my case running in the background (on linux):
 ```sh
-$ nohup node turnip.js >/dev/null & 
+$ node turnip.js >/dev/null & 
 ```

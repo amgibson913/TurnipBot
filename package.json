@@ -1,0 +1,23 @@
+{
+  "name": "turnipbot",
+  "version": "1.0.0",
+  "description": "Simple discord bot that calculates upcoming turnip prices from google spreadsheet data",
+  "main": "turnip.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amgibson913/TurnipBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amgibson913/TurnipBot/issues"
+  },
+  "homepage": "https://github.com/amgibson913/TurnipBot#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "google-spreadsheet": "^3.0.11"
+  }
+}
